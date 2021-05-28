@@ -1,0 +1,49 @@
+#add-item-container {
+    display: inline-block;
+}
+
+.add-item-label {
+    display: inline-block;
+    float: left;
+    clear: left;
+    width: 50px;
+    text-align: right;
+}
+
+.add-item-input {
+    display: inline-block;
+    float: left;
+    width: 300px;
+}
+
+#input-item-description {
+    height: 200px;
+}
+
+.inventory-items-table {
+    /*float: right;*/
+    empty-cells: show;
+    border-collapse: collapse;
+    text-align: left;
+    border: 1px solid;
+}
+
+.inventory-items-table thead {
+    font-weight: bold;
+}
+
+.inventory-items-table tbody {
+    font-weight: normal;
+}
+
+.inventory-items-table tr,td,th {
+    padding: 5px 15px;
+    border: 1px solid;
+    text-align: center;
+}
+
+.table-item-remove {
+    color: red;
+    font-weight: bold;
+    cursor: pointer;
+}
