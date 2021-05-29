@@ -1,21 +1,22 @@
 function generateAddItemView() {
     return `
         <h1>Inventory Management</h1>
+        <br>
         <p>
-            Add items to your inventory!<br>
+            Add items to your inventory!<br><br>
             Fields marked with asterisk (*) are required.
         </p>
         <br>
         <div id="add-item-container">
-            <label class="add-item-label" for="input-item-name" title="Name">Name</label>
+            <label class="add-item-label" for="input-item-name" title="Name">Name *</label>
             <input class="add-item-input" type="text" id="input-item-name">
-            <br>
+            <br><br>
             <label class="add-item-label" for="input-item-description" title="Description">Description</label>
             <textarea class="add-item-input" id="input-item-description"></textarea>
         </div>
-        <br>
+        <br><br><br>
         <button onClick="addItem('${model.inputItemName}','${model.inputItemDesc}')" ${inputIsValid() ? "" : "disabled"}>Add</button>
-        <br>
+        <br><br>
         <button onClick="goToPage(1)">Goto: Inv mgmt</button>
     `;
 }
@@ -61,10 +62,11 @@ function generateInventoryTable() {
 function generateInventoryListView() {
     return `
         <h1>Inventory</h1>
+        <br>
         <p>
             Click cell to edit. 
         </p>
-        <br>
+        <br><br>
         ${generateInventoryTable()}
         <br>
         <button onClick="goToPage(0)">Goto: Item adder</button>

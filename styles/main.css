@@ -5,16 +5,19 @@
 #app {
     width: 100vw;
     height: 100vh;
-    background-color: darkcyan;
     display: flex;
     justify-content: center;
     align-items: center;
+    /*background-color: darkcyan;*/
 }
 
 #content {
     /*margin: auto;*/
     padding: 50px;
-    background-color: darkslategrey;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    /*background-color: darkslategrey;*/
 }
 
 #add-item-container {
@@ -25,8 +28,10 @@
     display: inline-block;
     float: left;
     clear: left;
-    width: 50px;
+    width: 75px;
     text-align: right;
+    /* Spacing between label and "for" item */
+    padding-right: 10px;
 }
 
 .add-item-input {
@@ -40,7 +45,6 @@
 }
 
 .inventory-items-table {
-    /*float: right;*/
     empty-cells: show;
     border-collapse: collapse;
     text-align: left;
