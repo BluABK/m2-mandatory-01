@@ -1,3 +1,22 @@
+* {
+    margin: 0;
+}
+
+#app {
+    width: 100vw;
+    height: 100vh;
+    background-color: darkcyan;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#content {
+    /*margin: auto;*/
+    padding: 50px;
+    background-color: darkslategrey;
+}
+
 #add-item-container {
     display: inline-block;
 }

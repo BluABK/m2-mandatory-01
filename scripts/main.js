@@ -73,7 +73,9 @@ function generateInventoryListView() {
 
 function updateViews() {
     document.getElementById("app").innerHTML = `
-        ${model.currentPage === 0 ? generateAddItemView() : generateInventoryListView()}
+        <div id="content">
+            ${model.currentPage === 0 ? generateAddItemView() : generateInventoryListView()}
+        </div>
     `;
 }
 
