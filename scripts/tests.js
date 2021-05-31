@@ -126,6 +126,7 @@ QUnit.test("Unable to edit item when given invalid input.", function (assert) {
 
     // Perform edits.
     assert.false(editItem("Not an index"), "Unable to edit item index that is NaN.");
+    assert.false(editItem(3.14), "Unable to edit item index that is not an Integer.");
     assert.false(editItem(model.items.length, "rename"), "Unable to edit item index that is OOB.");
     assert.false(editItem(0), "Treat lack of both newName and newDescription params as a failed op.");
 
@@ -137,6 +138,7 @@ QUnit.test("Unable to delete item when given invalid input.", function (assert) 
 
     // Perform deletion.
     assert.false(deleteItem("Not an index"), "Unable to delete item index that is NaN.");
+    assert.false(deleteItem(3.14), "Unable to delete item index that is not an Integer.");
     assert.false(deleteItem(model.items.length), "Unable to delete item index that is OOB.");
     assert.false(deleteItem(0), "Unable to delete item that never existed.");
     assert.true(cleanupModel(), "Clean test environment, as a prerequisite of the following test.");

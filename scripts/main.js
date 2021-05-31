@@ -94,9 +94,24 @@ function goToPage(index) {
 
 function deleteItem(itemsIndex) {
     console.log("deleteItem", itemsIndex);
+
+    // Check that itemsIndex is an integer.
+    if (!Number.isInteger(itemsIndex)) {
+        console.error("itemsIndex is *NOT* an integer value!", itemsIndex);
+        return false;
+    }
+
+    // Verify that item index is within bounds.
+    if (model.items.length <= itemsIndex) {
+        console.error("Attempted to delete item in OOB index!", itemsIndex, model.items.length);
+        return false;
+    }
+
     model.items.splice(itemsIndex, 1);
 
-    updateViews();
+    updateViews(); // FIXME: onClick listen to new func that calls this then updates?
+
+    return true;
 }
 
 /**
@@ -114,6 +129,12 @@ function editItem(itemsIndex, newName = null , newDescription = null) {
     // Check that either name or description param were given.
     if (!newName && !newDescription) {
         console.error("Can't edit item if neither name nor description is given as parameter!");
+        return false;
+    }
+
+    // Check that itemsIndex is an integer.
+    if (!Number.isInteger(itemsIndex)) {
+        console.error("itemsIndex is *NOT* an integer value!", itemsIndex);
         return false;
     }
 
