@@ -5,6 +5,7 @@ const model = {
         lastFocusedElementId : null,
         lastCaretPosition: null,
     },
+    lastInvalidInput: null,
     currentPage: 0,
     validNameAlphabet: "abcdefghijklmnopqrstuvwxyzæøå",
     items: [

@@ -14,7 +14,8 @@ function generateAddItemView() {
             <br><br>
             <label class="add-item-label" for="input-item-name" title="Name">Name *</label>
             <input class="add-item-input" type="text" id="input-item-name" value="${model.inputs.inputItemName}"
-                   onInput="performThenUpdateViews(handleInput, 'inputItemName', this, true)">
+                   onInput="performThenUpdateViews(handleInput, 'inputItemName', this, true, true)">
+            <p class="error-msg">${model.lastInvalidInput ? `&nbsp;Invalid character: "${model.lastInvalidInput}"` : ""}</p>
             <br><br>
             <label class="add-item-label" for="input-item-description" title="Description">Description</label>
             <textarea class="add-item-input" id="input-item-description" 
@@ -167,7 +168,10 @@ function validateInputName(name, caseSensitive = false) {
     for (let i = 0; i < name.length; i++) {
         // Check if char is not in the valid name alphabet.
         if (!model.validNameAlphabet.includes(caseSensitive ? name.charAt(i) : name.charAt(i).toLowerCase())) {
-            console.error("validateInputName encountered invalid input char, returning validation up until this point!", name.charAt(i));
+            console.error(`validateInputName encountered invalid input char "${name.charAt(i)}", returning validation up until this point!`, name.charAt(i));
+
+            // Update the last invalid input for showing to user.
+            model.lastInvalidInput = name.charAt(i);
 
             return validName;
         }
@@ -175,6 +179,9 @@ function validateInputName(name, caseSensitive = false) {
         // If char is valid, append to valid name string.
         validName += name.charAt(i);
     }
+
+    // Since last input was valid, clear the last invalid input to avoid confusion.
+    model.lastInvalidInput = null;
 
     return validName;
 }

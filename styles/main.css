@@ -25,7 +25,7 @@
 .add-item-label {
     display: inline-block;
     float: left;
-    clear: left;
+    /*clear: left;*/
     width: 75px;
     text-align: right;
     /* Spacing between label and "for" item */
@@ -71,4 +71,9 @@
 
 .uneditable {
     background-color: #e0e0e0;
+}
+
+.error-msg {
+    float: right;
+    color: red;
 }
