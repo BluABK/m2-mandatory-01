@@ -4,7 +4,7 @@
  */
 function generateAddItemView() {
     return `
-        <h1>Inventory Management</h1>
+        <h1>Add Inventory</h1>
         <br>
         <p>Add items to your inventory!</p><br>
         <i>Fields marked with asterisk (*) are required.</i><br>
@@ -23,7 +23,7 @@ function generateAddItemView() {
         <br><br><br>
         <button onClick="performThenUpdateViews(addItem, '${model.inputs.inputItemName}','${model.inputs.inputItemDesc}')" ${inputNameIsValid() ? "" : "disabled"}>Add</button>
         <br><br>
-        <button onClick="goToPage(1)">Goto: Inv mgmt</button>
+        <button onClick="goToPage(1)">Manage Inventory</button>
     `;
 }
 
@@ -45,10 +45,18 @@ function generateInventoryTable() {
     for (let i = 0; i < model.items.length; i++) {
         tableBody += `
             <tr>
-                <td contenteditable onFocusOut="performThenUpdateViews(editItem, ${i}, this.innerText, ${null})">${model.items[i].name}</td>
-                <td contenteditable onFocusOut="performThenUpdateViews(editItem, ${i}, ${null}, this.innerText)">${model.items[i].description}</td>
-                <td class="uneditable">${model.items[i].addedOn.toISOString().split('.')[0].replace('T', ' ')}</td>
-                <td><span class="table-item-remove" onClick="performThenUpdateViews(deleteItem, ${i})">X</span></td>
+                <td contenteditable onFocusOut="performThenUpdateViews(editItem, ${i}, this.innerText, ${null})">
+                    ${model.items[i].name}
+                </td>
+                <td contenteditable onFocusOut="performThenUpdateViews(editItem, ${i}, ${null}, this.innerText)">
+                    ${model.items[i].description}
+                </td>
+                <td class="uneditable">
+                    ${model.items[i].addedOn.toISOString().split('.')[0].replace('T', ' ')}
+                </td>
+                <td>
+                    <span class="table-item-remove" onClick="performThenUpdateViews(deleteItem, ${i})">X</span>
+                </td>
             </tr>
         `
     }
@@ -79,7 +87,7 @@ function generateInventoryListView() {
         <br><br>
         ${generateInventoryTable()}
         <br>
-        <button onClick="goToPage(0)">Goto: Item adder</button>
+        <button onClick="goToPage(0)">Add Inventory</button>
     `;
 }
 
@@ -123,6 +131,7 @@ function existsAndIsOfType(x, type) {
  */
 function goToPage(index) {
     model.currentPage = index;
+
     updateViews();
 }
 
@@ -145,8 +154,6 @@ function deleteItem(itemsIndex) {
     }
 
     model.items.splice(itemsIndex, 1);
-
-    updateViews(); // FIXME: onClick listen to new func that calls this then updates?
 
     return true;
 }
@@ -203,7 +210,7 @@ function editItem(itemsIndex, newName = null , newDescription = null) {
 }
 
 /**
- * Performs a function, then updates Views.
+ * Perform a function, then update Views.
  * @param func Function to call.
  * @param {any} args List of arguments to pass on to func.
  */
@@ -213,10 +220,9 @@ function performThenUpdateViews(func, ...args) {
     updateViews();
 }
 
-function clearInventory() {
-    model.items = [];
-}
-
+/**
+ * Clear inputs.
+ */
 function clearInputs() {
     model.inputs.inputItemName = model.inputs.inputItemDesc = "";
 }
@@ -225,9 +231,9 @@ function clearInputs() {
  * Validate input name.
  *
  * Concatenates valid characters, returns current validated string if an invalid character is met.
- * @param name
- * @param caseSensitive
- * @returns {string}
+ * @param name Name to validate.
+ * @param caseSensitive Whether or not to be case-sensitive.
+ * @returns {string} Valid string (cuts off at first invalid char).
  */
 function validateInputName(name, caseSensitive = false) {
     let validName = "";
@@ -262,17 +268,18 @@ function updateLastFocusedElement(elementID, caretPosition) {
 
 /**
  * Handle input.
- * @param dest destination variable (likely a model attr).
+ * @param modelInputDest model input attribute to save input to.
  * @param element Input element.
  * @param validate Whether to validate element text against valid alphabet.
  */
-function handleInput(dest, element, validate = true) {
+function handleInput(modelInputDest, element, validate = true) {
     updateLastFocusedElement(element.id, "selectionStart" in element ? element.selectionStart : null);
 
-    if (dest in model.inputs) {
-        model.inputs[dest] = validate ? validateInputName(element.value) : element.value;
+    // Check whether model input destination attribute actually exists in model.inputs object.
+    if (modelInputDest in model.inputs) {
+        model.inputs[modelInputDest] = validate ? validateInputName(element.value) : element.value;
     } else {
-        console.error(`handleInput: attribute '${dest}' not in model.inputs!`);
+        console.error(`handleInput: attribute '${modelInputDest}' not in model.inputs!`);
     }
 }
 
@@ -281,7 +288,7 @@ function handleInput(dest, element, validate = true) {
  *
  * Checks that it's defined, not empty and validator returns equivalent string.
  * @param {String} name Name validate (default: model.inputs.inputItemName).
- * @returns {boolean}
+ * @returns {boolean} Whether name is valid or not.
  */
 function inputNameIsValid(name = model.inputs.inputItemName) {
     return name && name !== "" && name === validateInputName(name);
@@ -291,7 +298,7 @@ function inputNameIsValid(name = model.inputs.inputItemName) {
  * Add item to inventory.
  * @param name Name of item (NB: input validated).
  * @param description Optional description.
- * @returns {boolean}
+ * @returns {boolean} Success status.
  */
 function addItem(name, description = "") {
     if (!inputNameIsValid()) {
@@ -321,8 +328,5 @@ function addItem(name, description = "") {
 
     return false;
 }
-
-// Start with a clean slate.
-// clearInventory();
 
 updateViews();
