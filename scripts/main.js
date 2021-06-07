@@ -10,7 +10,7 @@ function generateAddItemView() {
             <br><br>
             <label class="add-item-label" for="input-item-name" title="Name">Name *</label>
             <input class="add-item-input" type="text" id="input-item-name" value="${model.inputItemName}"
-                   onInput="validateInputNameAndUpdateViews(this.value)">
+                   onInput="validateInputNameAndUpdateViews(this)">
             <br><br>
             <label class="add-item-label" for="input-item-description" title="Description">Description</label>
             <textarea class="add-item-input" id="input-item-description" onInput="model.inputItemDesc = this.value">${model.inputItemDesc}</textarea>
@@ -78,6 +78,15 @@ function updateViews() {
             ${model.currentPage === 0 ? generateAddItemView() : generateInventoryListView()}
         </div>
     `;
+
+    // Custom View handling for page 0 (Item adder page) .
+    if (model.currentPage === 0) {
+        // Fix focus loss when redrawing page.
+        if (model.lastFocusedElementId !== null) document.getElementById(model.lastFocusedElementId).focus();
+
+        // Put caret at the last position instead of start of text.
+        if (model.lastCaretPosition !== null) document.getElementById(model.lastFocusedElementId).selectionStart = parseInt(model.lastCaretPosition);
+    }
 }
 
 function existsAndIsOfType(x, type) {
@@ -187,10 +196,25 @@ function validateInputName(name, caseSensitive = false) {
     return validName;
 }
 
-function validateInputNameAndUpdateViews(name) {
-    console.log("validateInputNameAndUpdateViews", name);
+/**
+ * Helper function to keep input elements in focus after view redraw.
+ * @param {String} elementID ID of the element.
+ * @param {Number || null} caretPosition Position of the caret in the element (use null if N/A).
+ */
+function updateLastFocusedElement(elementID, caretPosition) {
+    // Set element as last focused element (helper to avoid annoying focus loss on page redraw).
+    model.lastFocusedElementId = elementID;
 
-    model.inputItemName = validateInputName(name);
+    // Set caret last position.
+    model.lastCaretPosition = caretPosition;
+}
+
+function validateInputNameAndUpdateViews(textInputElement) {
+    console.log("validateInputNameAndUpdateViews", textInputElement);
+
+    updateLastFocusedElement(textInputElement.id, textInputElement.selectionStart);
+
+    model.inputItemName = validateInputName(textInputElement.value);
 
     updateViews();
 }
