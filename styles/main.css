@@ -70,3 +70,7 @@
     font-weight: bold;
     cursor: pointer;
 }
+
+.uneditable {
+    background-color: #e0e0e0;
+}

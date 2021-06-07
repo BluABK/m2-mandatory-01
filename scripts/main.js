@@ -25,10 +25,10 @@ function generateAddItemView() {
 function generateInventoryTable() {
     let tableHeadings = `
         <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Added On</th>
-            <th>Remove?</th>
+            <th class="uneditable">Name</th>
+            <th class="uneditable">Description</th>
+            <th class="uneditable">Added On</th>
+            <th class="uneditable">Remove?</th>
         </tr>
     `;
     let tableBody = "";
@@ -38,7 +38,7 @@ function generateInventoryTable() {
             <tr>
                 <td contenteditable onFocusOut="editItemAndUpdateViews(${i}, this.innerText, ${null})">${model.items[i].name}</td>
                 <td contenteditable onFocusOut="editItemAndUpdateViews(${i}, ${null}, this.innerText)">${model.items[i].description}</td>
-                <td>${model.items[i].addedOn.toISOString().split('.')[0].replace('T', ' ')}</td>
+                <td class="uneditable">${model.items[i].addedOn.toISOString().split('.')[0].replace('T', ' ')}</td>
                 <td><span class="table-item-remove" onclick="deleteItem(${i})">X</span></td>
             </tr>
         `
