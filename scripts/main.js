@@ -36,8 +36,8 @@ function generateInventoryTable() {
     for (let i = 0; i < model.items.length; i++) {
         tableBody += `
             <tr>
-                <td>${model.items[i].name}</td>
-                <td>${model.items[i].description}</td>
+                <td contenteditable onInput="model.items[${i}].name = this.innerText">${model.items[i].name}</td>
+                <td contenteditable onInput="model.items[${i}].description = this.innerText">${model.items[i].description}</td>
                 <td>${model.items[i].addedOn.toISOString().split('.')[0].replace('T', ' ')}</td>
                 <td><span class="table-item-remove" onclick="deleteItem(${i})">X</span></td>
             </tr>
