@@ -36,8 +36,8 @@ function generateInventoryTable() {
     for (let i = 0; i < model.items.length; i++) {
         tableBody += `
             <tr>
-                <td contenteditable onInput="model.items[${i}].name = this.innerText">${model.items[i].name}</td>
-                <td contenteditable onInput="model.items[${i}].description = this.innerText">${model.items[i].description}</td>
+                <td contenteditable onFocusOut="editItemAndUpdateViews(${i}, this.innerText, ${null})">${model.items[i].name}</td>
+                <td contenteditable onFocusOut="editItemAndUpdateViews(${i}, ${null}, this.innerText)">${model.items[i].description}</td>
                 <td>${model.items[i].addedOn.toISOString().split('.')[0].replace('T', ' ')}</td>
                 <td><span class="table-item-remove" onclick="deleteItem(${i})">X</span></td>
             </tr>
@@ -63,7 +63,7 @@ function generateInventoryListView() {
         <h1>Inventory</h1>
         <br>
         <p>
-            Click cell to edit. 
+            Click cell to edit (saves on de-focus).
         </p>
         <br><br>
         ${generateInventoryTable()}
@@ -124,6 +124,10 @@ function deleteItem(itemsIndex) {
     return true;
 }
 
+function debugItem(elem) {
+    console.info(elem);
+}
+
 /**
  * Edit item in model's items Array.
  *
@@ -135,7 +139,6 @@ function deleteItem(itemsIndex) {
  */
 function editItem(itemsIndex, newName = null , newDescription = null) {
     console.log("editItem", itemsIndex, newName, newDescription);
-
     // Check that either name or description param were given.
     if (!newName && !newDescription) {
         console.error("Can't edit item if neither name nor description is given as parameter!");
@@ -155,10 +158,35 @@ function editItem(itemsIndex, newName = null , newDescription = null) {
     }
 
     // Edit properties if given parameters.
-    if (existsAndIsOfType(newName, "string")) model.items[itemsIndex].name = newName;
+    if (existsAndIsOfType(newName, "string"))
+    {
+        if (inputNameIsValid(newName) === true) {
+            model.items[itemsIndex].name = newName;
+        } else {
+            let validatedName = validateInputName(newName);
+
+            // If validated name is shorter than original name,
+            // then we know the invalid char occurred at last index +1, i.e. '.length'.
+            if (validatedName.length < newName.length) {
+                alert(`Invalid input char "${newName.charAt(validatedName.length)}" at position ${validatedName.length}!`);
+            } else {
+                alert("Invalid input!");
+            }
+        }
+    }
+
     if (existsAndIsOfType(newDescription, "string")) model.items[itemsIndex].description = newDescription;
 
     return true;
+}
+
+/**
+ * Edit an item and update Views.
+ * @param {any} args
+ */
+function editItemAndUpdateViews(...args) {
+    editItem(...args);
+    updateViews();
 }
 
 function clearInventory() {
@@ -178,7 +206,6 @@ function clearInputs() {
  * @returns {string}
  */
 function validateInputName(name, caseSensitive = false) {
-    console.log(`validateInputName "${name}", Case-sensitive: ${caseSensitive}`);
     let validName = "";
 
     for (let i = 0; i < name.length; i++) {
@@ -202,6 +229,7 @@ function validateInputName(name, caseSensitive = false) {
  * @param {Number || null} caretPosition Position of the caret in the element (use null if N/A).
  */
 function updateLastFocusedElement(elementID, caretPosition) {
+    console.log("updateLastFocusedElement", elementID, caretPosition)
     // Set element as last focused element (helper to avoid annoying focus loss on page redraw).
     model.inputs.lastFocusedElementId = elementID;
 
@@ -210,9 +238,7 @@ function updateLastFocusedElement(elementID, caretPosition) {
 }
 
 function validateInputNameAndUpdateViews(textInputElement) {
-    console.log("validateInputNameAndUpdateViews", textInputElement);
-
-    updateLastFocusedElement(textInputElement.id, textInputElement.selectionStart);
+    updateLastFocusedElement(textInputElement.id, textInputElement.hasOwnProperty("selectionStart") ? textInputElement.selectionStart: null);
 
     model.inputs.inputItemName = validateInputName(textInputElement.value);
 
@@ -220,8 +246,6 @@ function validateInputNameAndUpdateViews(textInputElement) {
 }
 
 function updateDescriptionAndUpdateViews(textAreaElement) {
-    console.log("updateDescriptionAndUpdateViews", textAreaElement);
-
     updateLastFocusedElement(textAreaElement.id, textAreaElement.selectionStart);
 
     model.inputs.inputItemDesc = textAreaElement.value;
@@ -229,20 +253,25 @@ function updateDescriptionAndUpdateViews(textAreaElement) {
     updateViews();
 }
 
-function inputNameIsValid() {
-    // Check that it's defined, not empty and validator returns equivalent string.
-    return model.inputs.inputItemName && model.inputs.inputItemName !== "" && model.inputs.inputItemName === validateInputName(model.inputs.inputItemName);
+/**
+ * Check that input name is valid.
+ *
+ * Checks that it's defined, not empty and validator returns equivalent string.
+ * @param {String} name Name validate (default: model.inputs.inputItemName).
+ * @returns {boolean}
+ */
+function inputNameIsValid(name = model.inputs.inputItemName) {
+    return name && name !== "" && name === validateInputName(name);
 }
 
 function addItem(name, description) {
-    console.log("addItem", name, description);
-
-    if (!inputNameIsValid(name)) {
+    if (!inputNameIsValid()) {
         let validatedName = validateInputName(name);
+
         // If validated name is shorter than original name,
         // then we know the invalid char occurred at last index +1, i.e. '.length'.
         if (validatedName.length < name.length) {
-            console.error(`addItem got invalid input at char ${name.charAt(validatedName.length)}`);
+            console.error(`addItem got invalid char "${name.charAt(validatedName.length)}" at position ${validatedName.length}`);
             return false;
         } else {
             console.error(`addItem got invalid input!`, name, validatedName);
@@ -265,8 +294,6 @@ function addItem(name, description) {
 }
 
 function addItemAndUpdateViews(name, description) {
-    console.log("addItemAndUpdateViews", name, description);
-
     addItem(name, description);
 
     updateViews();
