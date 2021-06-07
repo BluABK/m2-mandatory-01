@@ -16,7 +16,7 @@ function cleanupModel() {
 }
 
 QUnit.test("Add item.", function (assert) {
-    const itemName = "My Test Item";
+    const itemName = "MyTestItem";
     const itemDesc = `Unit Test: "Valid input: Add item"`;
 
     // Ensure test environment is clean.
@@ -30,7 +30,7 @@ QUnit.test("Add item.", function (assert) {
 });
 
 QUnit.test("Edit item.", function (assert) {
-    const itemName = "My Test Item";
+    const itemName = "MyTestItem";
     const itemDesc = `Unit Test: "Valid input: Add item"`;
 
     // Ensure test environment is clean.
@@ -43,7 +43,7 @@ QUnit.test("Edit item.", function (assert) {
     assert.true(model.items.some(item => item.name === itemName), "Verify that item was added.");
 
     // Edit item name.
-    let newItemName = "My (Renamed) Test Item";
+    let newItemName = "MyRenamedTestItem";
     editItem(0, newItemName);
     assert.equal(model.items[0].name, newItemName, "Rename Test item name.")
 
@@ -54,7 +54,7 @@ QUnit.test("Edit item.", function (assert) {
 });
 
 QUnit.test("Delete item.", function (assert) {
-    const itemName = "My Test Item";
+    const itemName = "MyTestItem";
     const itemDesc = `Unit Test: "Valid input: Add item"`;
 
     // Ensure test environment is clean.
@@ -72,7 +72,7 @@ QUnit.test("Delete item.", function (assert) {
 });
 
 QUnit.test("Manage item (entire workflow).", function (assert) {
-    const itemName = "My Test Item";
+    const itemName = "MyTestItem";
     const itemDesc = `Unit Test: "Valid input: Add item"`;
 
     // Ensure test environment is clean.
@@ -85,7 +85,7 @@ QUnit.test("Manage item (entire workflow).", function (assert) {
     assert.true(model.items.some(item => item.name === itemName), "Verify that item was added.");
 
     // Edit item name.
-    let newItemName = "My (Renamed) Test Item";
+    let newItemName = "MyRenamed)TestItem";
     editItem(0, newItemName);
     assert.equal(model.items[0].name, newItemName, "Rename Test item name.")
 
@@ -107,15 +107,15 @@ QUnit.test("Unable to add item when given invalid input.", function (assert) {
     // Ensure test environment is clean.
     assert.true(cleanupModel(), "Clean test environment.");
 
-    // Add the item.
-    assert.true(addItem(itemName, itemDesc), "Add the item.");
+    // Attempt to add the *INVALID* item.
+    assert.false(addItem(itemName, itemDesc), "Fail to add the *INVALID* item.");
 
     // Verify that item was added.
     assert.false(model.items.some(item => item.name === itemName), "Verify that item was *NOT* added.");
 });
 
 QUnit.test("Unable to edit item when given invalid input.", function (assert) {
-    const itemName = "My Test Item";
+    const itemName = "MyTestItem";
     const itemDesc = `Unit Test: "Valid input: Add item"`;
 
     // Ensure test environment is clean.

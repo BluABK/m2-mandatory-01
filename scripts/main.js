@@ -9,13 +9,14 @@ function generateAddItemView() {
             <i>Name can only contain characters between ${model.validNameAlphabet.charAt(0)}-${model.validNameAlphabet.charAt(model.validNameAlphabet.length-1).toUpperCase()}.</i>
             <br><br>
             <label class="add-item-label" for="input-item-name" title="Name">Name *</label>
-            <input class="add-item-input" type="text" id="input-item-name" onInput="validateInput()">
+            <input class="add-item-input" type="text" id="input-item-name" value="${model.inputItemName}"
+                   onInput="validateInputNameAndUpdateViews(this.value)">
             <br><br>
             <label class="add-item-label" for="input-item-description" title="Description">Description</label>
-            <textarea class="add-item-input" id="input-item-description"></textarea>
+            <textarea class="add-item-input" id="input-item-description" onInput="model.inputItemDesc = this.value">${model.inputItemDesc}</textarea>
         </div>
         <br><br><br>
-        <button onClick="addItem('${model.inputItemName}','${model.inputItemDesc}')" ${inputIsValid() ? "" : "disabled"}>Add</button>
+        <button onClick="addItemAndUpdateViews('${model.inputItemName}','${model.inputItemDesc}')" ${inputNameIsValid() ? "" : "disabled"}>Add</button>
         <br><br>
         <button onClick="goToPage(1)">Goto: Inv mgmt</button>
     `;
@@ -155,18 +156,71 @@ function clearInventory() {
     model.items = [];
 }
 
-function validateInput() {
-
+function clearInputs() {
+    model.inputItemName = model.inputItemDesc = "";
 }
 
-function inputIsValid() {
-    return model.inputItemName !== "";
+/**
+ * Validate input name.
+ *
+ * Concatenates valid characters, returns current validated string if an invalid character is met.
+ * @param name
+ * @param caseSensitive
+ * @returns {string}
+ */
+function validateInputName(name, caseSensitive = false) {
+    console.log(`validateInputName "${name}", Case-sensitive: ${caseSensitive}`);
+    let validName = "";
+
+    for (let i = 0; i < name.length; i++) {
+        // Check if char is not in the valid name alphabet.
+        if (!model.validNameAlphabet.includes(caseSensitive ? name.charAt(i) : name.charAt(i).toLowerCase())) {
+            console.error("validateInputName encountered invalid input char, returning validation up until this point!", name.charAt(i));
+
+            return validName;
+        }
+
+        // If char is valid, append to valid name string.
+        validName += name.charAt(i);
+    }
+
+    return validName;
+}
+
+function validateInputNameAndUpdateViews(name) {
+    console.log("validateInputNameAndUpdateViews", name);
+
+    model.inputItemName = validateInputName(name);
+
+    updateViews();
+}
+
+function inputNameIsValid() {
+    // Check that it's defined, not empty and validator returns equivalent string.
+    return model.inputItemName && model.inputItemName !== "" && model.inputItemName === validateInputName(model.inputItemName);
 }
 
 function addItem(name, description) {
     console.log("addItem", name, description);
+
+    if (!inputNameIsValid(name)) {
+        let validatedName = validateInputName(name);
+        // If validated name is shorter than original name,
+        // then we know the invalid char occurred at last index +1, i.e. '.length'.
+        if (validatedName.length < name.length) {
+            console.error(`addItem got invalid input at char ${name.charAt(validatedName.length)}`);
+            return false;
+        } else {
+            console.error(`addItem got invalid input!`, name, validatedName);
+        }
+    }
+
     try {
+        // Add item.
         model.items.push({name: name, description: description, addedOn: new Date()});
+
+        // Clear input after successful adding of item.
+        clearInputs();
 
         return true;
     } catch (e) {
@@ -174,6 +228,14 @@ function addItem(name, description) {
     }
 
     return false;
+}
+
+function addItemAndUpdateViews(name, description) {
+    console.log("addItemAndUpdateViews", name, description);
+
+    addItem(name, description);
+
+    updateViews();
 }
 
 // Start with a clean slate.
