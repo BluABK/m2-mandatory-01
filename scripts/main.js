@@ -126,6 +126,24 @@ function existsAndIsOfType(x, type) {
 }
 
 /**
+ * Check that input name is valid.
+ *
+ * Checks that it's defined, not empty and validator returns equivalent string.
+ * @param {String} [name=model.inputs.inputItemName] Name validate.
+ * @returns {boolean} Whether name is valid or not.
+ */
+function inputNameIsValid(name = model.inputs.inputItemName) {
+    return name && name !== "" && name === validateInputName(name);
+}
+
+/**
+ * Clear inputs.
+ */
+function clearInputs() {
+    model.inputs.inputItemName = model.inputs.inputItemDesc = "";
+}
+
+/**
  * Go to a page and update views.
  * @param {Number} index Page index.
  */
@@ -136,8 +154,64 @@ function goToPage(index) {
 }
 
 /**
- * Delete item at given index from inventory.
- * @param itemsIndex Index of item.
+ * Validate input name.
+ *
+ * Concatenates valid characters, returns current validated string if an invalid character is met.
+ * @param {String} name Name to validate.
+ * @param {Boolean} caseSensitive Whether or not to be case-sensitive.
+ * @returns {String} Valid string (cuts off at first invalid char).
+ */
+function validateInputName(name, caseSensitive = false) {
+    let validName = "";
+
+    for (let i = 0; i < name.length; i++) {
+        // Check if char is not in the valid name alphabet.
+        if (!model.validNameAlphabet.includes(caseSensitive ? name.charAt(i) : name.charAt(i).toLowerCase())) {
+            console.error("validateInputName encountered invalid input char, returning validation up until this point!", name.charAt(i));
+
+            return validName;
+        }
+
+        // If char is valid, append to valid name string.
+        validName += name.charAt(i);
+    }
+
+    return validName;
+}
+
+/**
+ * Helper function to keep input elements in focus after view redraw.
+ * @param {String} elementID ID of the element.
+ * @param {Number || null} caretPosition Position of the caret in the element (use null if N/A).
+ */
+function updateLastFocusedElement(elementID, caretPosition) {
+    // Set element as last focused element (helper to avoid annoying focus loss on page redraw).
+    model.inputs.lastFocusedElementId = elementID;
+
+    // Set caret last position.
+    model.inputs.lastCaretPosition = caretPosition;
+}
+
+/**
+ * Handle input.
+ * @param {String} modelInputDest model input attribute to save input to.
+ * @param {HTMLInputElement || HTMLTextAreaElement} element Input element.
+ * @param validate Whether to validate element text against valid alphabet.
+ */
+function handleInput(modelInputDest, element, validate = true) {
+    updateLastFocusedElement(element.id, "selectionStart" in element ? element.selectionStart : null);
+
+    // Check whether model input destination attribute actually exists in model.inputs object.
+    if (modelInputDest in model.inputs) {
+        model.inputs[modelInputDest] = validate ? validateInputName(element.value) : element.value;
+    } else {
+        console.error(`handleInput: attribute '${modelInputDest}' not in model.inputs!`);
+    }
+}
+
+/**
+ * Delete item from inventory, by index.
+ * @param {Number} itemsIndex Index of item.
  * @returns {boolean} Success status.
  */
 function deleteItem(itemsIndex) {
@@ -159,7 +233,7 @@ function deleteItem(itemsIndex) {
 }
 
 /**
- * Edit item in model's items Array.
+ * Edit inventory item, by index.
  *
  * If neither newName nor newDescription parameters are supplied, it is treated as a failure.
  * @param {Number} itemsIndex Item's position in model's items Array.
@@ -210,94 +284,9 @@ function editItem(itemsIndex, newName = null , newDescription = null) {
 }
 
 /**
- * Perform a function, then update Views.
- * @param func Function to call.
- * @param {any} args List of arguments to pass on to func.
- */
-function performThenUpdateViews(func, ...args) {
-    func(...args);
-
-    updateViews();
-}
-
-/**
- * Clear inputs.
- */
-function clearInputs() {
-    model.inputs.inputItemName = model.inputs.inputItemDesc = "";
-}
-
-/**
- * Validate input name.
- *
- * Concatenates valid characters, returns current validated string if an invalid character is met.
- * @param name Name to validate.
- * @param caseSensitive Whether or not to be case-sensitive.
- * @returns {string} Valid string (cuts off at first invalid char).
- */
-function validateInputName(name, caseSensitive = false) {
-    let validName = "";
-
-    for (let i = 0; i < name.length; i++) {
-        // Check if char is not in the valid name alphabet.
-        if (!model.validNameAlphabet.includes(caseSensitive ? name.charAt(i) : name.charAt(i).toLowerCase())) {
-            console.error("validateInputName encountered invalid input char, returning validation up until this point!", name.charAt(i));
-
-            return validName;
-        }
-
-        // If char is valid, append to valid name string.
-        validName += name.charAt(i);
-    }
-
-    return validName;
-}
-
-/**
- * Helper function to keep input elements in focus after view redraw.
- * @param {String} elementID ID of the element.
- * @param {Number || null} caretPosition Position of the caret in the element (use null if N/A).
- */
-function updateLastFocusedElement(elementID, caretPosition) {
-    // Set element as last focused element (helper to avoid annoying focus loss on page redraw).
-    model.inputs.lastFocusedElementId = elementID;
-
-    // Set caret last position.
-    model.inputs.lastCaretPosition = caretPosition;
-}
-
-/**
- * Handle input.
- * @param modelInputDest model input attribute to save input to.
- * @param element Input element.
- * @param validate Whether to validate element text against valid alphabet.
- */
-function handleInput(modelInputDest, element, validate = true) {
-    updateLastFocusedElement(element.id, "selectionStart" in element ? element.selectionStart : null);
-
-    // Check whether model input destination attribute actually exists in model.inputs object.
-    if (modelInputDest in model.inputs) {
-        model.inputs[modelInputDest] = validate ? validateInputName(element.value) : element.value;
-    } else {
-        console.error(`handleInput: attribute '${modelInputDest}' not in model.inputs!`);
-    }
-}
-
-/**
- * Check that input name is valid.
- *
- * Checks that it's defined, not empty and validator returns equivalent string.
- * @param {String} name Name validate (default: model.inputs.inputItemName).
- * @returns {boolean} Whether name is valid or not.
- */
-function inputNameIsValid(name = model.inputs.inputItemName) {
-    return name && name !== "" && name === validateInputName(name);
-}
-
-/**
  * Add item to inventory.
- * @param name Name of item (NB: input validated).
- * @param description Optional description.
+ * @param {String} name Name of item (NB: input validated).
+ * @param {String} description Optional description.
  * @returns {boolean} Success status.
  */
 function addItem(name, description = "") {
@@ -327,6 +316,17 @@ function addItem(name, description = "") {
     }
 
     return false;
+}
+
+/**
+ * Perform a function, then update Views.
+ * @param {function} func Function to call.
+ * @param {...any} args List of arguments to pass on to func.
+ */
+function performThenUpdateViews(func, ...args) {
+    func(...args);
+
+    updateViews();
 }
 
 updateViews();
