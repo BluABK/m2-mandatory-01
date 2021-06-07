@@ -4,27 +4,35 @@
  */
 function generateAddItemView() {
     return `
-        <h1>Add Inventory</h1>
-        <br>
-        <p>Add items to your inventory!</p><br>
-        <i>Fields marked with asterisk (*) are required.</i><br>
-        <br>
+        <div class="heading">
+            <h1>Add Inventory</h1>
+            <p>Add items to your inventory!</p><br>
+        </div>
+        <div class="top">
+            <ul>
+                <li><i>Fields marked with asterisk (*) are required.</i><br></li>
+                <li><i>Name can only contain characters between ${model.validNameAlphabet.charAt(0)}-${model.validNameAlphabet.charAt(model.validNameAlphabet.length-1).toUpperCase()}.</i></li>
+            </ul>
+        </div>
         <div id="add-item-container">
-            <i>Name can only contain characters between ${model.validNameAlphabet.charAt(0)}-${model.validNameAlphabet.charAt(model.validNameAlphabet.length-1).toUpperCase()}.</i>
-            <br><br>
+            <br>
             <label class="add-item-label" for="input-item-name" title="Name">Name *</label>
             <input class="add-item-input" type="text" id="input-item-name" value="${model.inputs.inputItemName}"
                    onInput="performThenUpdateViews(handleInput, 'inputItemName', this, true, true)">
-            <p class="error-msg">${model.lastInvalidInput ? `&nbsp;Invalid character: "${model.lastInvalidInput}"` : ""}</p>
+            <br>
+            <p class="add-item-input error-msg">${model.lastInvalidInput ? `Invalid character: "${model.lastInvalidInput}"` : ""}</p>
+            
             <br><br>
             <label class="add-item-label" for="input-item-description" title="Description">Description</label>
             <textarea class="add-item-input" id="input-item-description" 
                    onInput="performThenUpdateViews(handleInput, 'inputItemDesc', this, false)">${model.inputs.inputItemDesc}</textarea>
         </div>
         <br><br><br>
-        <button onClick="performThenUpdateViews(addItem, '${model.inputs.inputItemName}','${model.inputs.inputItemDesc}')" ${inputNameIsValid() ? "" : "disabled"}>Add</button>
-        <br><br>
-        <button onClick="goToPage(1)">Manage Inventory</button>
+        <div class="bottom">
+            <button onClick="performThenUpdateViews(addItem, '${model.inputs.inputItemName}','${model.inputs.inputItemDesc}')" ${inputNameIsValid() ? "" : "disabled"}>Add</button>
+            <br><br>
+            <button onClick="goToPage(1)">Manage Inventory</button>
+        </div>
     `;
 }
 

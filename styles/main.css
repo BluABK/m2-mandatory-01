@@ -7,11 +7,9 @@
     height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
 }
 
 #content {
-    /*margin: auto;*/
     padding: 50px;
     justify-content: center;
     align-items: center;
@@ -22,10 +20,22 @@
     display: inline-block;
 }
 
+.top {
+    margin: 15px;
+    padding-bottom: 15px;
+    text-align: left;
+}
+
+.bottom {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+
 .add-item-label {
     display: inline-block;
     float: left;
-    /*clear: left;*/
     width: 75px;
     text-align: right;
     /* Spacing between label and "for" item */
