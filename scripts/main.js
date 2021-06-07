@@ -103,8 +103,6 @@ function goToPage(index) {
 }
 
 function deleteItem(itemsIndex) {
-    console.log("deleteItem", itemsIndex);
-
     // Check that itemsIndex is an integer.
     if (!Number.isInteger(itemsIndex)) {
         console.error("itemsIndex is *NOT* an integer value!", itemsIndex);
@@ -124,10 +122,6 @@ function deleteItem(itemsIndex) {
     return true;
 }
 
-function debugItem(elem) {
-    console.info(elem);
-}
-
 /**
  * Edit item in model's items Array.
  *
@@ -138,7 +132,6 @@ function debugItem(elem) {
  * @returns {boolean} Whether successful.
  */
 function editItem(itemsIndex, newName = null , newDescription = null) {
-    console.log("editItem", itemsIndex, newName, newDescription);
     // Check that either name or description param were given.
     if (!newName && !newDescription) {
         console.error("Can't edit item if neither name nor description is given as parameter!");
@@ -181,8 +174,8 @@ function editItem(itemsIndex, newName = null , newDescription = null) {
 }
 
 /**
- * Edit an item and update Views.
- * @param {any} args
+ * Edits an item and updates Views.
+ * @param {any} args List of arguments to pass on.
  */
 function editItemAndUpdateViews(...args) {
     editItem(...args);
@@ -238,7 +231,7 @@ function updateLastFocusedElement(elementID, caretPosition) {
 }
 
 function validateInputNameAndUpdateViews(textInputElement) {
-    updateLastFocusedElement(textInputElement.id, textInputElement.hasOwnProperty("selectionStart") ? textInputElement.selectionStart: null);
+    updateLastFocusedElement(textInputElement.id, "selectionStart" in textInputElement ? textInputElement.selectionStart : null);
 
     model.inputs.inputItemName = validateInputName(textInputElement.value);
 
@@ -246,7 +239,7 @@ function validateInputNameAndUpdateViews(textInputElement) {
 }
 
 function updateDescriptionAndUpdateViews(textAreaElement) {
-    updateLastFocusedElement(textAreaElement.id, textAreaElement.selectionStart);
+    updateLastFocusedElement(textAreaElement.id, "selectionStart" in textAreaElement ? textAreaElement.selectionStart : null);
 
     model.inputs.inputItemDesc = textAreaElement.value;
 
