@@ -85,7 +85,7 @@ QUnit.test("Manage item (entire workflow).", function (assert) {
     assert.true(model.items.some(item => item.name === itemName), "Verify that item was added.");
 
     // Edit item name.
-    let newItemName = "MyRenamed)TestItem";
+    let newItemName = "MyRenamedTestItem";
     editItem(0, newItemName);
     assert.equal(model.items[0].name, newItemName, "Rename Test item name.")
 
