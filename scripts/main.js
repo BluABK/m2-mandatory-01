@@ -1,3 +1,7 @@
+/**
+ * Generate page to add items on.
+ * @returns {string} Generated HTML.
+ */
 function generateAddItemView() {
     return `
         <h1>Inventory Management</h1>
@@ -10,18 +14,23 @@ function generateAddItemView() {
             <br><br>
             <label class="add-item-label" for="input-item-name" title="Name">Name *</label>
             <input class="add-item-input" type="text" id="input-item-name" value="${model.inputs.inputItemName}"
-                   onInput="validateInputNameAndUpdateViews(this)">
+                   onInput="performThenUpdateViews(handleInput, 'inputItemName', this, true)">
             <br><br>
             <label class="add-item-label" for="input-item-description" title="Description">Description</label>
-            <textarea class="add-item-input" id="input-item-description" onInput="updateDescriptionAndUpdateViews(this)">${model.inputs.inputItemDesc}</textarea>
+            <textarea class="add-item-input" id="input-item-description" 
+                   onInput="performThenUpdateViews(handleInput, 'inputItemDesc', this, false)">${model.inputs.inputItemDesc}</textarea>
         </div>
         <br><br><br>
-        <button onClick="addItemAndUpdateViews('${model.inputs.inputItemName}','${model.inputs.inputItemDesc}')" ${inputNameIsValid() ? "" : "disabled"}>Add</button>
+        <button onClick="performThenUpdateViews(addItem, '${model.inputs.inputItemName}','${model.inputs.inputItemDesc}')" ${inputNameIsValid() ? "" : "disabled"}>Add</button>
         <br><br>
         <button onClick="goToPage(1)">Goto: Inv mgmt</button>
     `;
 }
 
+/**
+ * Generate inventory table.
+ * @returns {string} Generated HTML.
+ */
 function generateInventoryTable() {
     let tableHeadings = `
         <tr>
@@ -36,15 +45,15 @@ function generateInventoryTable() {
     for (let i = 0; i < model.items.length; i++) {
         tableBody += `
             <tr>
-                <td contenteditable onFocusOut="editItemAndUpdateViews(${i}, this.innerText, ${null})">${model.items[i].name}</td>
-                <td contenteditable onFocusOut="editItemAndUpdateViews(${i}, ${null}, this.innerText)">${model.items[i].description}</td>
+                <td contenteditable onFocusOut="performThenUpdateViews(editItem, ${i}, this.innerText, ${null})">${model.items[i].name}</td>
+                <td contenteditable onFocusOut="performThenUpdateViews(editItem, ${i}, ${null}, this.innerText)">${model.items[i].description}</td>
                 <td class="uneditable">${model.items[i].addedOn.toISOString().split('.')[0].replace('T', ' ')}</td>
-                <td><span class="table-item-remove" onclick="deleteItem(${i})">X</span></td>
+                <td><span class="table-item-remove" onClick="performThenUpdateViews(deleteItem, ${i})">X</span></td>
             </tr>
         `
     }
 
-    let table = `
+    return `
         <table class="inventory-items-table">
             <thead>
                 ${tableHeadings}
@@ -54,10 +63,12 @@ function generateInventoryTable() {
             </tbody>
         </table>
     `;
-
-    return table;
 }
 
+/**
+ * Generate the inventory list page.
+ * @returns {string} Generated HTML.
+ */
 function generateInventoryListView() {
     return `
         <h1>Inventory</h1>
@@ -72,6 +83,9 @@ function generateInventoryListView() {
     `;
 }
 
+/**
+ * MVC: Update Views.
+ */
 function updateViews() {
     document.getElementById("app").innerHTML = `
         <div id="content">
@@ -89,6 +103,12 @@ function updateViews() {
     }
 }
 
+/**
+ * Check that variable exists and is of a specific type.
+ * @param {any} x variable to check.
+ * @param {String} type Type variable should be.
+ * @returns {boolean} Success status.
+ */
 function existsAndIsOfType(x, type) {
     if (x) {
         if (typeof x === type) return true;
@@ -97,11 +117,20 @@ function existsAndIsOfType(x, type) {
     return false;
 }
 
+/**
+ * Go to a page and update views.
+ * @param {Number} index Page index.
+ */
 function goToPage(index) {
     model.currentPage = index;
     updateViews();
 }
 
+/**
+ * Delete item at given index from inventory.
+ * @param itemsIndex Index of item.
+ * @returns {boolean} Success status.
+ */
 function deleteItem(itemsIndex) {
     // Check that itemsIndex is an integer.
     if (!Number.isInteger(itemsIndex)) {
@@ -174,11 +203,13 @@ function editItem(itemsIndex, newName = null , newDescription = null) {
 }
 
 /**
- * Edits an item and updates Views.
- * @param {any} args List of arguments to pass on.
+ * Performs a function, then updates Views.
+ * @param func Function to call.
+ * @param {any} args List of arguments to pass on to func.
  */
-function editItemAndUpdateViews(...args) {
-    editItem(...args);
+function performThenUpdateViews(func, ...args) {
+    func(...args);
+
     updateViews();
 }
 
@@ -222,7 +253,6 @@ function validateInputName(name, caseSensitive = false) {
  * @param {Number || null} caretPosition Position of the caret in the element (use null if N/A).
  */
 function updateLastFocusedElement(elementID, caretPosition) {
-    console.log("updateLastFocusedElement", elementID, caretPosition)
     // Set element as last focused element (helper to avoid annoying focus loss on page redraw).
     model.inputs.lastFocusedElementId = elementID;
 
@@ -230,20 +260,20 @@ function updateLastFocusedElement(elementID, caretPosition) {
     model.inputs.lastCaretPosition = caretPosition;
 }
 
-function validateInputNameAndUpdateViews(textInputElement) {
-    updateLastFocusedElement(textInputElement.id, "selectionStart" in textInputElement ? textInputElement.selectionStart : null);
+/**
+ * Handle input.
+ * @param dest destination variable (likely a model attr).
+ * @param element Input element.
+ * @param validate Whether to validate element text against valid alphabet.
+ */
+function handleInput(dest, element, validate = true) {
+    updateLastFocusedElement(element.id, "selectionStart" in element ? element.selectionStart : null);
 
-    model.inputs.inputItemName = validateInputName(textInputElement.value);
-
-    updateViews();
-}
-
-function updateDescriptionAndUpdateViews(textAreaElement) {
-    updateLastFocusedElement(textAreaElement.id, "selectionStart" in textAreaElement ? textAreaElement.selectionStart : null);
-
-    model.inputs.inputItemDesc = textAreaElement.value;
-
-    updateViews();
+    if (dest in model.inputs) {
+        model.inputs[dest] = validate ? validateInputName(element.value) : element.value;
+    } else {
+        console.error(`handleInput: attribute '${dest}' not in model.inputs!`);
+    }
 }
 
 /**
@@ -257,7 +287,13 @@ function inputNameIsValid(name = model.inputs.inputItemName) {
     return name && name !== "" && name === validateInputName(name);
 }
 
-function addItem(name, description) {
+/**
+ * Add item to inventory.
+ * @param name Name of item (NB: input validated).
+ * @param description Optional description.
+ * @returns {boolean}
+ */
+function addItem(name, description = "") {
     if (!inputNameIsValid()) {
         let validatedName = validateInputName(name);
 
@@ -284,12 +320,6 @@ function addItem(name, description) {
     }
 
     return false;
-}
-
-function addItemAndUpdateViews(name, description) {
-    addItem(name, description);
-
-    updateViews();
 }
 
 // Start with a clean slate.
