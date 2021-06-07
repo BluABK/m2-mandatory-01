@@ -9,14 +9,14 @@ function generateAddItemView() {
             <i>Name can only contain characters between ${model.validNameAlphabet.charAt(0)}-${model.validNameAlphabet.charAt(model.validNameAlphabet.length-1).toUpperCase()}.</i>
             <br><br>
             <label class="add-item-label" for="input-item-name" title="Name">Name *</label>
-            <input class="add-item-input" type="text" id="input-item-name" value="${model.inputItemName}"
+            <input class="add-item-input" type="text" id="input-item-name" value="${model.inputs.inputItemName}"
                    onInput="validateInputNameAndUpdateViews(this)">
             <br><br>
             <label class="add-item-label" for="input-item-description" title="Description">Description</label>
-            <textarea class="add-item-input" id="input-item-description" onInput="model.inputItemDesc = this.value">${model.inputItemDesc}</textarea>
+            <textarea class="add-item-input" id="input-item-description" onInput="updateDescriptionAndUpdateViews(this)">${model.inputs.inputItemDesc}</textarea>
         </div>
         <br><br><br>
-        <button onClick="addItemAndUpdateViews('${model.inputItemName}','${model.inputItemDesc}')" ${inputNameIsValid() ? "" : "disabled"}>Add</button>
+        <button onClick="addItemAndUpdateViews('${model.inputs.inputItemName}','${model.inputs.inputItemDesc}')" ${inputNameIsValid() ? "" : "disabled"}>Add</button>
         <br><br>
         <button onClick="goToPage(1)">Goto: Inv mgmt</button>
     `;
@@ -82,10 +82,10 @@ function updateViews() {
     // Custom View handling for page 0 (Item adder page) .
     if (model.currentPage === 0) {
         // Fix focus loss when redrawing page.
-        if (model.lastFocusedElementId !== null) document.getElementById(model.lastFocusedElementId).focus();
+        if (model.inputs.lastFocusedElementId !== null) document.getElementById(model.inputs.lastFocusedElementId).focus();
 
         // Put caret at the last position instead of start of text.
-        if (model.lastCaretPosition !== null) document.getElementById(model.lastFocusedElementId).selectionStart = parseInt(model.lastCaretPosition);
+        if (model.inputs.lastCaretPosition !== null) document.getElementById(model.inputs.lastFocusedElementId).selectionStart = parseInt(model.inputs.lastCaretPosition);
     }
 }
 
@@ -166,7 +166,7 @@ function clearInventory() {
 }
 
 function clearInputs() {
-    model.inputItemName = model.inputItemDesc = "";
+    model.inputs.inputItemName = model.inputs.inputItemDesc = "";
 }
 
 /**
@@ -203,10 +203,10 @@ function validateInputName(name, caseSensitive = false) {
  */
 function updateLastFocusedElement(elementID, caretPosition) {
     // Set element as last focused element (helper to avoid annoying focus loss on page redraw).
-    model.lastFocusedElementId = elementID;
+    model.inputs.lastFocusedElementId = elementID;
 
     // Set caret last position.
-    model.lastCaretPosition = caretPosition;
+    model.inputs.lastCaretPosition = caretPosition;
 }
 
 function validateInputNameAndUpdateViews(textInputElement) {
@@ -214,14 +214,24 @@ function validateInputNameAndUpdateViews(textInputElement) {
 
     updateLastFocusedElement(textInputElement.id, textInputElement.selectionStart);
 
-    model.inputItemName = validateInputName(textInputElement.value);
+    model.inputs.inputItemName = validateInputName(textInputElement.value);
+
+    updateViews();
+}
+
+function updateDescriptionAndUpdateViews(textAreaElement) {
+    console.log("updateDescriptionAndUpdateViews", textAreaElement);
+
+    updateLastFocusedElement(textAreaElement.id, textAreaElement.selectionStart);
+
+    model.inputs.inputItemDesc = textAreaElement.value;
 
     updateViews();
 }
 
 function inputNameIsValid() {
     // Check that it's defined, not empty and validator returns equivalent string.
-    return model.inputItemName && model.inputItemName !== "" && model.inputItemName === validateInputName(model.inputItemName);
+    return model.inputs.inputItemName && model.inputs.inputItemName !== "" && model.inputs.inputItemName === validateInputName(model.inputs.inputItemName);
 }
 
 function addItem(name, description) {

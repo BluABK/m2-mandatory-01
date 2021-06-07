@@ -1,8 +1,10 @@
 const model = {
-    inputItemName: "",
-    inputItemDesc: "",
-    lastFocusedElementId : null,
-    lastCaretPosition: null,
+    inputs: {
+        inputItemName: "",
+        inputItemDesc: "",
+        lastFocusedElementId : null,
+        lastCaretPosition: null,
+    },
     currentPage: 0,
     validNameAlphabet: "abcdefghijklmnopqrstuvwxyzæøå",
     items: [
